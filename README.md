@@ -1,3 +1,4 @@
+[English/Español](./README.md) | [中文](./README-zh.md)
 # NOST-IA: Nodo Operativo Soberano Territorial con Inteligencia Artificial
 
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)

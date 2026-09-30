@@ -1,0 +1,10 @@
+{
+  "name": "SIITAL - Inteligencia Territorial y Automatización Local",
+  "description": "NOST-IA (Nodo Operativo Soberano Territorial): Inteligencia comercial, inventario, punto de venta (POS) 100% offline, facturación automática y Compañero/a IA Soberano/a con IA Ternaria (Ternary Bonsai 4B de 1.58-bit ~860MB RAM) y Qwen 2.5 para PCs humildes.",
+  "requestFramePermissions": [
+    "camera"
+  ],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

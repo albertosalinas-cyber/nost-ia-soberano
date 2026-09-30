@@ -53,8 +53,8 @@ Fue diseñado con una premisa inquebrantable de **soberanía tecnológica**:
 
 ```bash
 # 1. Clonar el repositorio
-git clone https://github.com/alberto-salinas/nost-ia.git
-cd nost-ia
+git clone https://github.com/albertosalinas-cyber/nost-ia-soberano.git
+cd nost-ia-soberano
 
 # 2. Instalar dependencias
 npm install

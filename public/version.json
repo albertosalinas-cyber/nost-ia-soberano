@@ -1,0 +1,19 @@
+{
+  "version": "1.2.0",
+  "nombre": "NOST-IA - Actualización Soberana Territorial",
+  "fecha": "2026-09-29",
+  "autor": "Profesor en Bibliotecología e Informática ALBERTO SALINAS MENDIETA",
+  "lema": "Inteligencia Artificial al servicio del Territorio",
+  "cambios": [
+    "Motor VDU 2D optimizado para remitos y tickets fiscales AFIP de distribución argentina.",
+    "Persistencia blindada con resguardo automático al cierre del día comercial.",
+    "Doble verificación criptográfica para actualización de nodos con servicio activo.",
+    "Matriz de veto de 5 etapas para evitar unificación de bultos pesados y unidades menores."
+  ],
+  "mejorasSeguridad": [
+    "Validación timing-safe en comprobación de doble clave de actualización.",
+    "Aislamiento estricto de base de datos local (Dexie/IndexedDB) sin telemetría.",
+    "Protección de base de datos de comercio: nunca se sobrescriben tablas existentes durante actualizaciones."
+  ],
+  "urlInfo": "https://nostia.tech/actualizaciones"
+}

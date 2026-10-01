@@ -1,39 +1,41 @@
 @echo off
-title NOST-IA v3.0 - Nodo Operativo Soberano Territorial
+cd /d "%~dp0"
+title NOST-IA
 color 0A
 
-REM Ir al directorio del script
-cd /d "%~dp0"
-
-echo ==============================================================================
-echo                 NOST-IA v3.0 - LANZADOR AUTOMATICO SOBERANO
-echo       Punto de Venta POS - Control de Stock - Ingesta VDU - IA Local Qwen
-echo ==============================================================================
+echo =======================================================
+echo                 NOST-IA - INICIANDO
+echo =======================================================
 echo.
 
-REM Ejecutar diagnostico y preparacion con PowerShell
-if exist "%~dp0setup_helper.ps1" (
-    powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0setup_helper.ps1"
+set "NODE_BIN="
+
+if exist ".runtime\node\node.exe" (
+    set "NODE_BIN=.runtime\node\node.exe"
+    echo [*] Usando Node portable interno...
+) else (
+    where node >nul 2>&1
+    if %errorlevel% equ 0 (
+        set "NODE_BIN=node"
+        echo [*] Usando Node.js instalado en el sistema...
+    ) else (
+        echo [!] ERROR: No se encuentra Node.js ni portable ni instalado.
+        echo Por favor, instala Node.js LTS desde https://nodejs.org/
+        pause
+        exit
+    )
 )
 
-REM Asegurar rutas en PATH
-set "PATH=%ProgramFiles%\nodejs;%ProgramFiles(x86)%\nodejs;%APPDATA%\npm;%LOCALAPPDATA%\Programs\Ollama;%PATH%"
+echo [*] Abriendo navegador en http://localhost:3000...
+start http://localhost:3000
 
-echo [*] Iniciando servidor NOST-IA...
-start "" http://localhost:3000
-
-call npm run dev
-
-if %errorlevel% neq 0 (
-    echo.
-    echo [!] Hubo un detalle al ejecutar npm run dev.
-    echo Intentando con npx...
-    call npx tsx server.ts
+echo [*] Iniciando servidor territorial...
+if exist "dist\server.cjs" (
+    "%NODE_BIN%" "dist\server.cjs"
+) else (
+    "%NODE_BIN%" "node_modules\tsx\dist\cli.mjs" "server.ts"
 )
 
 echo.
-echo ==============================================================================
 echo El servidor se ha detenido.
-echo Presiona cualquier tecla para salir.
-echo ==============================================================================
 pause

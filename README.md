@@ -9,6 +9,11 @@
 ![Status](https://img.shields.io/badge/Status-En_Desarrollo-orange)
 ![Sovereign AI](https://img.shields.io/badge/Soberan%C3%ADa-100%25_Offline-red)
 
+![Demo de NOST-IA](aca_va_el_enlace_que_te_da_github)
+
+<img width="800" height="450" alt="MUESTRA_CompaeroaIATerritorial_VIDEO-ezgif" src="https://github.com/user-attachments/assets/7d34534f-8bfa-4cab-8974-e92fd71473d4" />
+
+
 > **Software Libre (GPLv3), Soberano y 100% Offline para Almacenes de Barrio, Comercios Populares, Cooperativas, Clubes de Barrio y Organizaciones Libres del Pueblo.**  
 > *Concebido y desarrollado por el **Profesor en Bibliotecología e Informática ALBERTO SALINAS MENDIETA**.*  
 > *Lema: Inteligencia Artificial al servicio del Territorio • Mataderos, Buenos Aires, Argentina*

@@ -57,10 +57,15 @@ Fue diseñado con una premisa inquebrantable de **soberanía tecnológica**:
 
 ## ⚡ Instalación y Puesta en Marcha
 
+Para usuarios de Windows (sin conocimientos técnicos):
+Descargá el archivo NOST-IA-v1.0.1-Windows.zip desde la sección Releases, descomprimilo y en el archivo descomprimido buscá un archivo con el nombre "INICIAR.bat", hacé doble click + Ejecutar y después solo espera hasta que el sistema desrcague todo el sistema, las librerias y programas necesarios. Al finalizar, se abrirá automaticamente una web que corre de local con la dirección de `http://localhost:3000`, LISTO" puedes usarlo libremente.
+
+Los siguientes pasos son solo para desarrolladores que quieran correr el código fuente:
+
 ```bash
 # 1. Clonar el repositorio
-git clone https://github.com/alberto-salinas/nost-ia.git
-cd nost-ia
+git clone https://github.com/albertosalinas-cyber/nost-ia-soberano.git
+cd nost-ia-soberano
 
 # 2. Instalar dependencias
 npm install

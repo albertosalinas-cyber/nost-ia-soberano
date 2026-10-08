@@ -1,0 +1,1738 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NOST-IA · La Inteligencia Artificial al servicio de las PYMES y los comercios de barrio</title>
+<meta name="description" content="Software libre 100% offline para la gestión comercial de almacenes de barrio, cooperativas y comercios populares. IA local, soberanía tecnológica, sin suscripciones.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#03040a;
+  --bg-2:#070912;
+  --surface:rgba(15,18,28,0.85);
+  --border:rgba(255,255,255,0.08);
+  --text:#e8ecf5;
+  --text-dim:#8a92a8;
+  --cyan:#00e5ff;
+  --cyan-2:#00b8d4;
+  --amber:#ffb800;
+  --red:#ff3b5c;
+  --green:#00ff9d;
+  --violet:#a855f7;
+  --ocre:#c9873a;
+  --grad-1:linear-gradient(135deg,#00e5ff 0%,#a855f7 50%,#ff3b5c 100%);
+  --grad-2:linear-gradient(135deg,#00e5ff 0%,#00ff9d 100%);
+  --grad-tierr:linear-gradient(135deg,#c9873a 0%,#ffb800 50%,#8b5a2b 100%);
+}
+
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{
+  background:var(--bg);
+  color:var(--text);
+  font-family:'Inter',system-ui,sans-serif;
+  line-height:1.6;
+  overflow-x:hidden;
+  -webkit-font-smoothing:antialiased;
+  cursor:none;
+}
+
+/* CURSOR PERSONALIZADO */
+.cursor{
+  position:fixed;width:8px;height:8px;border-radius:50%;
+  background:var(--cyan);pointer-events:none;z-index:9999;
+  transform:translate(-50%,-50%);
+  box-shadow:0 0 20px var(--cyan),0 0 40px var(--cyan);
+  transition:width 0.3s,height 0.3s,background 0.3s;
+  mix-blend-mode:screen;
+}
+.cursor-ring{
+  position:fixed;width:40px;height:40px;border-radius:50%;
+  border:1px solid rgba(0,229,255,0.5);
+  pointer-events:none;z-index:9998;
+  transform:translate(-50%,-50%);
+  transition:width 0.3s,height 0.3s,border 0.3s;
+}
+.cursor.hover{width:20px;height:20px;background:var(--amber);}
+.cursor-ring.hover{width:60px;height:60px;border-color:var(--amber);}
+@media(max-width:768px){.cursor,.cursor-ring{display:none;} body{cursor:auto;}}
+
+/* LOADER */
+.loader{
+  position:fixed;inset:0;background:var(--bg);z-index:10000;
+  display:flex;align-items:center;justify-content:center;
+  transition:opacity 0.8s,visibility 0.8s;
+}
+.loader.hidden{opacity:0;visibility:hidden;}
+.loader-logo{
+  font-family:'Space Grotesk',sans-serif;
+  font-size:3rem;font-weight:700;
+  background:var(--grad-1);
+  -webkit-background-clip:text;background-clip:text;
+  -webkit-text-fill-color:transparent;
+  animation:loaderPulse 1.5s ease-in-out infinite;
+  letter-spacing:-0.03em;
+}
+@keyframes loaderPulse{
+  0%,100%{opacity:1;transform:scale(1);}
+  50%{opacity:0.5;transform:scale(0.95);}
+}
+
+/* CANVAS 3D FONDO */
+#bg-canvas{
+  position:fixed;top:0;left:0;width:100%;height:100%;
+  z-index:-1;opacity:0.7;
+}
+
+/* NAV CON DOCK INTEGRADO */
+nav{
+  position:fixed;top:0;left:0;right:0;
+  z-index:100;
+  padding:14px 5%;
+  display:flex;align-items:center;justify-content:space-between;
+  gap:20px;
+  background:rgba(3,4,10,0.7);
+  backdrop-filter:blur(20px);
+  -webkit-backdrop-filter:blur(20px);
+  border-bottom:1px solid var(--border);
+  transition:padding 0.3s;
+}
+nav.scrolled{padding:10px 5%;}
+.logo{
+  display:flex;align-items:center;gap:12px;
+  font-family:'Space Grotesk',sans-serif;
+  font-weight:700;font-size:1.15rem;letter-spacing:-0.02em;
+  flex-shrink:0;
+}
+
+/* ESCUDO SELLO */
+.escudo-sello{
+  width:40px;height:40px;position:relative;
+  display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;
+}
+.escudo-sello svg{
+  width:100%;height:100%;
+  filter:drop-shadow(0 0 12px rgba(0,229,255,0.5));
+  transition:transform 0.4s;
+}
+.escudo-sello:hover svg{
+  transform:scale(1.1) rotate(5deg);
+}
+.escudo-sello .anillo-giratorio{
+  position:absolute;inset:-6px;
+  animation:girar 20s linear infinite;
+  pointer-events:none;
+}
+@keyframes girar{
+  from{transform:rotate(0deg);}
+  to{transform:rotate(360deg);}
+}
+
+/* DOCK INTEGRADO AL NAV */
+.dock{
+  display:flex;
+  align-items:center;
+  gap:4px;
+  padding:6px 10px;
+  border-radius:18px;
+  background:rgba(15,18,28,0.6);
+  border:1px solid var(--border);
+  backdrop-filter:blur(10px);
+  -webkit-backdrop-filter:blur(10px);
+}
+.dock-item{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  padding:8px 14px;
+  border-radius:12px;
+  text-decoration:none;
+  color:var(--text-dim);
+  font-size:0.8rem;
+  font-weight:500;
+  font-family:'Inter',sans-serif;
+  white-space:nowrap;
+  transition:all 0.3s cubic-bezier(0.23,1,0.32,1);
+  position:relative;
+  cursor:pointer;
+  transform-origin:center;
+}
+.dock-item:hover{
+  color:var(--cyan);
+  background:rgba(0,229,255,0.1);
+  transform:scale(1.15) translateY(-2px);
+  box-shadow:
+    0 8px 20px rgba(0,229,255,0.25),
+    0 0 0 1px rgba(0,229,255,0.3) inset;
+  z-index:10;
+}
+.dock-item.vecino-1{
+  transform:scale(1.06);
+  color:var(--text);
+}
+.dock-item .dock-icon{
+  font-size:1rem;
+  line-height:1;
+  display:block;
+  filter:drop-shadow(0 0 4px rgba(0,229,255,0.5));
+}
+
+.nav-cta{
+  padding:10px 20px;border-radius:8px;
+  background:var(--grad-2);color:#000;
+  font-weight:700;font-size:0.85rem;text-decoration:none;
+  transition:transform 0.2s,box-shadow 0.2s;
+  position:relative;overflow:hidden;
+  flex-shrink:0;
+}
+.nav-cta:hover{transform:translateY(-2px);box-shadow:0 10px 30px rgba(0,229,255,0.4);}
+
+@media(max-width:1100px){
+  .dock-item .dock-label{display:none;}
+  .dock-item{padding:8px 10px;}
+}
+@media(max-width:768px){
+  .dock{display:none;}
+}
+
+/* HERO */
+.hero{
+  min-height:100vh;
+  display:flex;flex-direction:column;justify-content:center;
+  padding:140px 5% 60px;
+  position:relative;
+  overflow:hidden;
+}
+.hero::before{
+  content:'';position:absolute;inset:0;
+  background-image:
+    linear-gradient(rgba(0,229,255,0.04) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(0,229,255,0.04) 1px,transparent 1px);
+  background-size:60px 60px;
+  z-index:-1;
+  mask-image:radial-gradient(ellipse at center,black 30%,transparent 90%);
+  -webkit-mask-image:radial-gradient(ellipse at center,black 30%,transparent 90%);
+}
+
+.hero-grid{
+  display:grid;
+  grid-template-columns:1.3fr 1fr;
+  gap:60px;
+  align-items:center;
+  max-width:1400px;
+  margin:0 auto;
+  width:100%;
+}
+.hero-text{z-index:2;}
+
+.badge{
+  display:inline-flex;align-items:center;gap:8px;
+  padding:8px 16px;border-radius:100px;
+  background:rgba(0,229,255,0.08);
+  border:1px solid rgba(0,229,255,0.2);
+  color:var(--cyan);font-size:0.75rem;font-weight:600;
+  letter-spacing:0.05em;text-transform:uppercase;
+  width:fit-content;margin-bottom:32px;
+  backdrop-filter:blur(10px);
+}
+.badge-dot{
+  width:6px;height:6px;border-radius:50%;background:var(--green);
+  box-shadow:0 0 10px var(--green);
+  animation:pulse 2s infinite;
+}
+@keyframes pulse{
+  0%,100%{opacity:1;transform:scale(1);}
+  50%{opacity:0.5;transform:scale(1.3);}
+}
+
+/* TÍTULO PRINCIPAL CON ONDA LUMINOSA */
+.titulo-principal{
+  font-family:'Space Grotesk',sans-serif;
+  font-size:clamp(2.2rem,4.5vw,4rem);
+  font-weight:700;
+  line-height:1.08;
+  letter-spacing:-0.04em;
+  margin-bottom:32px;
+  max-width:900px;
+}
+
+.titulo-principal .palabra{
+  display:inline-block;
+  white-space:nowrap;
+  margin-right:0.25em;
+}
+
+.titulo-principal .char{
+  display:inline-block;
+  background:linear-gradient(90deg,#00e5ff 0%,#a855f7 25%,#ff3b5c 50%,#a855f7 75%,#00e5ff 100%);
+  background-size:300% 100%;
+  -webkit-background-clip:text;background-clip:text;
+  -webkit-text-fill-color:transparent;
+  animation:charGradient 4s linear infinite;
+  filter:drop-shadow(0 0 20px rgba(0,229,255,0.3)) drop-shadow(0 0 40px rgba(168,85,247,0.15));
+  will-change:transform,opacity,filter;
+  position:relative;
+  opacity:0;
+}
+@keyframes charGradient{
+  0%{background-position:0% 50%;}
+  100%{background-position:300% 50%;}
+}
+
+.titulo-principal .char.visible{
+  opacity:1;
+}
+
+.titulo-principal .char.onda{
+  animation:charGradient 4s linear infinite, charWave 1.2s ease-out;
+}
+@keyframes charWave{
+  0%{
+    filter:drop-shadow(0 0 30px rgba(0,229,255,0.9)) drop-shadow(0 0 60px rgba(0,229,255,0.5));
+    transform:translateY(-4px) scale(1.05);
+  }
+  100%{
+    filter:drop-shadow(0 0 20px rgba(0,229,255,0.3)) drop-shadow(0 0 40px rgba(168,85,247,0.15));
+    transform:translateY(0) scale(1);
+  }
+}
+
+.hero p.lead{
+  font-size:clamp(1rem,1.4vw,1.2rem);
+  color:var(--text-dim);max-width:620px;
+  margin-bottom:48px;line-height:1.7;
+}
+.cta-group{display:flex;gap:16px;flex-wrap:wrap;margin-bottom:60px;}
+.btn{
+  display:inline-flex;align-items:center;gap:10px;
+  padding:16px 32px;border-radius:12px;
+  font-weight:700;font-size:0.95rem;text-decoration:none;
+  transition:all 0.3s;cursor:pointer;border:none;
+  font-family:'Inter',sans-serif;
+  position:relative;overflow:hidden;
+}
+.btn-primary{
+  background:var(--grad-2);color:#000;
+  box-shadow:0 10px 40px rgba(0,229,255,0.3);
+}
+.btn-primary::before{
+  content:'';position:absolute;top:0;left:-100%;width:100%;height:100%;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,0.4),transparent);
+  transition:left 0.5s;
+}
+.btn-primary:hover::before{left:100%;}
+.btn-primary:hover{transform:translateY(-3px);box-shadow:0 20px 60px rgba(0,229,255,0.5);}
+.btn-ghost{
+  background:rgba(255,255,255,0.04);color:var(--text);
+  border:1px solid var(--border);
+  backdrop-filter:blur(10px);
+}
+.btn-ghost:hover{background:rgba(255,255,255,0.08);border-color:var(--cyan);transform:translateY(-3px);}
+
+/* NODO TERRITORIAL CON VIDEO */
+.nodo-container{
+  position:relative;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  z-index:1;
+  aspect-ratio:1;
+  max-width:560px;
+  margin:0 auto;
+  width:100%;
+}
+.nodo-video{
+  width:100%;
+  height:100%;
+  object-fit:contain;
+  filter:drop-shadow(0 0 40px rgba(0,229,255,0.15));
+  animation:nodoFloat 8s ease-in-out infinite;
+  border-radius:50%;
+}
+@keyframes nodoFloat{
+  0%,100%{transform:translateY(0) rotate(0deg);}
+  50%{transform:translateY(-15px) rotate(2deg);}
+}
+.orbita{
+  position:absolute;
+  border-radius:50%;
+  border:1px dashed rgba(0,229,255,0.15);
+  animation:orbitaGirar 30s linear infinite;
+  pointer-events:none;
+}
+.orbita-1{width:95%;height:95%;}
+.orbita-2{width:110%;height:110%;border-color:rgba(201,135,58,0.15);animation-duration:45s;animation-direction:reverse;}
+.orbita-3{width:80%;height:80%;border-color:rgba(168,85,247,0.12);animation-duration:20s;}
+@keyframes orbitaGirar{
+  from{transform:rotate(0deg);}
+  to{transform:rotate(360deg);}
+}
+.orbita::before{
+  content:'';position:absolute;top:-3px;left:50%;
+  width:6px;height:6px;border-radius:50%;
+  background:var(--cyan);
+  box-shadow:0 0 12px var(--cyan);
+}
+.orbita-2::before{background:var(--ocre);box-shadow:0 0 12px var(--ocre);}
+.orbita-3::before{background:var(--violet);box-shadow:0 0 12px var(--violet);}
+
+/* STATS */
+.stats{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));
+  gap:32px;padding:48px 0;
+  border-top:1px solid var(--border);
+  border-bottom:1px solid var(--border);
+  max-width:1400px;
+  margin:60px auto 0;
+}
+.stat{text-align:center;}
+
+.contador-num{
+  font-family:'Space Grotesk',sans-serif;
+  font-size:2.6rem;
+  font-weight:700;
+  background:linear-gradient(135deg,#00e5ff 0%,#00ff9d 100%);
+  -webkit-background-clip:text;background-clip:text;
+  -webkit-text-fill-color:transparent;
+  letter-spacing:-0.03em;
+  line-height:1;
+  display:inline-block;
+  margin-bottom:8px;
+  filter:drop-shadow(0 0 20px rgba(0,229,255,0.4));
+}
+.contador-num.texto{
+  font-size:2.2rem;
+  background:linear-gradient(135deg,#00e5ff 0%,#a855f7 50%,#ff3b5c 100%);
+  -webkit-background-clip:text;background-clip:text;
+  -webkit-text-fill-color:transparent;
+  filter:drop-shadow(0 0 20px rgba(168,85,247,0.4));
+}
+
+.stat-label{
+  font-size:0.78rem;color:var(--text-dim);
+  text-transform:uppercase;letter-spacing:0.1em;
+  margin-top:6px;
+}
+
+/* SECCIONES */
+section{padding:50px 5%;position:relative;}
+.section-tag{
+  font-family:'JetBrains Mono',monospace;
+  font-size:0.75rem;color:var(--cyan);
+  text-transform:uppercase;letter-spacing:0.15em;
+  margin-bottom:20px;display:block;
+}
+
+h2{
+  font-family:'Space Grotesk',sans-serif;
+  font-size:clamp(2rem,4vw,3.5rem);
+  font-weight:700;line-height:1.05;letter-spacing:-0.035em;
+  margin-bottom:24px;max-width:900px;
+  background:linear-gradient(90deg,#00e5ff 0%,#a855f7 25%,#ff3b5c 50%,#a855f7 75%,#00e5ff 100%);
+  background-size:300% 100%;
+  -webkit-background-clip:text;background-clip:text;
+  -webkit-text-fill-color:transparent;
+  animation:gradientMove 8s linear infinite;
+}
+@keyframes gradientMove{
+  0%{background-position:0% 50%;}
+  100%{background-position:300% 50%;}
+}
+
+.section-sub{
+  color:var(--text-dim);font-size:1.1rem;
+  max-width:680px;margin-bottom:50px;
+}
+
+/* TARJETAS */
+.pillars,
+.features,
+.install-steps,
+.services{
+  display:grid;
+  gap:28px;
+}
+.pillars{grid-template-columns:repeat(auto-fit,minmax(300px,1fr));}
+.features{grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:24px;}
+.install-steps{grid-template-columns:repeat(auto-fit,minmax(280px,1fr));max-width:1100px;margin:0 auto;}
+.services{grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:24px;max-width:1200px;margin:0 auto;}
+
+.pillar,
+.feature,
+.step,
+.service{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:20px;
+  padding:40px;
+  position:relative;
+  overflow:hidden;
+  transition:all 0.4s cubic-bezier(0.23,1,0.32,1);
+  will-change:transform,opacity;
+}
+
+.pillar::after,
+.feature::after,
+.step::after,
+.service::after{
+  content:'';
+  position:absolute;
+  inset:0;
+  border-radius:inherit;
+  background:radial-gradient(circle at var(--mouse-x,50%) var(--mouse-y,50%),rgba(0,229,255,0.18),transparent 40%);
+  opacity:0;
+  transition:opacity 0.4s;
+  pointer-events:none;
+  z-index:1;
+}
+
+.pillar:hover,
+.feature:hover,
+.step:hover,
+.service:hover{
+  transform:translateY(-10px) scale(1.03);
+  border-color:rgba(0,229,255,0.5);
+  box-shadow:
+    0 30px 80px rgba(0,0,0,0.6),
+    0 0 0 1px rgba(0,229,255,0.3),
+    0 0 40px rgba(0,229,255,0.2);
+  z-index:5;
+}
+.pillar:hover::after,
+.feature:hover::after,
+.step:hover::after,
+.service:hover::after{
+  opacity:1;
+}
+
+.pillar::before,
+.feature::before,
+.step::before,
+.service::before{
+  content:'';
+  position:absolute;
+  top:0;left:0;right:0;
+  height:2px;
+  background:var(--grad-1);
+  opacity:0;
+  transition:opacity 0.4s;
+  z-index:2;
+}
+.pillar:hover::before,
+.feature:hover::before,
+.step:hover::before,
+.service:hover::before{
+  opacity:1;
+}
+
+.pillar-icon,
+.service-icon{
+  width:56px;height:56px;border-radius:14px;
+  background:rgba(0,229,255,0.08);
+  border:1px solid rgba(0,229,255,0.2);
+  display:flex;align-items:center;justify-content:center;
+  font-size:1.6rem;margin-bottom:24px;
+  transition:transform 0.4s;
+  position:relative;
+  z-index:2;
+}
+.service-icon{
+  width:auto;height:auto;background:none;border:none;
+  font-size:2rem;
+  display:block;
+}
+.pillar:hover .pillar-icon,
+.service:hover .service-icon{
+  transform:scale(1.15) rotate(-5deg);
+}
+
+.pillar h3,
+.service h4{
+  font-family:'Space Grotesk',sans-serif;
+  font-size:1.25rem;font-weight:600;margin-bottom:12px;
+  position:relative;z-index:2;
+}
+.service h4{font-size:1.05rem;}
+
+.pillar p,
+.feature p,
+.step p,
+.service p{
+  color:var(--text-dim);
+  font-size:0.95rem;
+  line-height:1.7;
+  position:relative;
+  z-index:2;
+}
+
+.feature-num{
+  font-family:'JetBrains Mono',monospace;
+  font-size:0.75rem;color:var(--violet);
+  margin-bottom:18px;display:block;
+  letter-spacing:0.1em;
+  position:relative;z-index:2;
+}
+.feature h4{
+  font-family:'Space Grotesk',sans-serif;
+  font-size:1.15rem;font-weight:600;margin-bottom:12px;
+  position:relative;z-index:2;
+}
+
+.step-num{
+  font-family:'Space Grotesk',sans-serif;
+  font-size:4rem;font-weight:700;
+  background:var(--grad-1);
+  -webkit-background-clip:text;background-clip:text;
+  -webkit-text-fill-color:transparent;
+  line-height:1;margin-bottom:20px;
+  opacity:0.9;
+  position:relative;z-index:2;
+}
+.step h4{
+  font-family:'Space Grotesk',sans-serif;
+  font-size:1.15rem;margin-bottom:12px;
+  position:relative;z-index:2;
+}
+
+/* DEMO */
+.demo-wrap{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:24px;padding:14px;
+  box-shadow:0 60px 120px rgba(0,0,0,0.7);
+  max-width:1100px;margin:0 auto;
+  position:relative;
+  transform:perspective(1500px) rotateX(2deg);
+  transition:transform 0.6s;
+}
+.demo-wrap:hover{transform:perspective(1500px) rotateX(0deg) scale(1.01);}
+.demo-wrap::before{
+  content:'';position:absolute;inset:-2px;border-radius:24px;
+  background:var(--grad-1);opacity:0.2;z-index:-1;
+  filter:blur(30px);
+}
+.demo-bar{
+  display:flex;gap:8px;padding:10px 16px;align-items:center;
+}
+.demo-dot{width:12px;height:12px;border-radius:50%;}
+.demo-dot.r{background:#ff5f56;}
+.demo-dot.y{background:#ffbd2e;}
+.demo-dot.g{background:#27c93f;}
+.demo-title{
+  margin-left:14px;font-family:'JetBrains Mono',monospace;
+  font-size:0.78rem;color:var(--text-dim);
+}
+
+/* CONTENEDOR DEL VIDEO RESPONSIVE */
+.video-container{
+  position:relative;
+  width:100%;
+  aspect-ratio:16/9;
+  border-radius:14px;
+  overflow:hidden;
+  background:#000;
+}
+.video-container iframe{
+  position:absolute;
+  top:0;left:0;
+  width:100%;height:100%;
+  border:none;
+  display:block;
+}
+
+/* STACK */
+.stack-grid{
+  display:flex;flex-wrap:wrap;gap:14px;
+  justify-content:center;max-width:1000px;margin:0 auto;
+}
+.stack-chip{
+  padding:12px 22px;border-radius:100px;
+  background:var(--surface);border:1px solid var(--border);
+  font-family:'JetBrains Mono',monospace;
+  font-size:0.85rem;color:var(--text);
+  display:flex;align-items:center;gap:10px;
+  transition:transform 0.3s, border-color 0.3s, color 0.3s, box-shadow 0.3s;
+  will-change:transform,opacity;
+}
+.stack-chip:hover{
+  border-color:var(--cyan);color:var(--cyan);
+  transform:translateY(-4px) scale(1.05);
+  box-shadow:0 10px 30px rgba(0,229,255,0.2);
+}
+.stack-chip .dot{width:8px;height:8px;border-radius:50%;}
+
+/* CTA DE SERVICIOS CON TARJETAS */
+.cta-servicios{
+  margin-top:60px;
+  background:linear-gradient(135deg,rgba(0,229,255,0.06),rgba(168,85,247,0.06),rgba(201,135,58,0.04));
+  border:1px solid var(--border);
+  border-radius:24px;
+  padding:60px 5%;
+  max-width:1200px;
+  margin-left:auto;
+  margin-right:auto;
+  position:relative;
+  overflow:hidden;
+}
+.cta-servicios::before{
+  content:'';position:absolute;top:-50%;left:-50%;
+  width:200%;height:200%;
+  background:radial-gradient(circle,rgba(0,229,255,0.08),transparent 50%);
+  animation:glowMove 15s ease-in-out infinite alternate;
+}
+.cta-servicios-content{position:relative;text-align:center;}
+.cta-servicios-tag{
+  font-family:'JetBrains Mono',monospace;
+  font-size:0.75rem;color:var(--cyan);
+  text-transform:uppercase;letter-spacing:0.15em;
+  display:block;margin-bottom:20px;
+}
+.cta-servicios h3{
+  font-family:'Space Grotesk',sans-serif;
+  font-size:clamp(1.5rem,3vw,2.5rem);
+  font-weight:700;letter-spacing:-0.03em;
+  margin-bottom:16px;
+  background:linear-gradient(90deg,#00e5ff 0%,#a855f7 50%,#ff3b5c 100%);
+  background-size:200% 100%;
+  -webkit-background-clip:text;background-clip:text;
+  -webkit-text-fill-color:transparent;
+  animation:gradientMove 6s linear infinite;
+}
+.cta-servicios p{
+  color:var(--text-dim);font-size:1.1rem;
+  max-width:600px;margin:0 auto 40px;
+}
+
+/* GRID DE TARJETAS DE CONTACTO */
+.contacto-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
+  gap:24px;
+  max-width:1000px;
+  margin:0 auto;
+  text-align:left;
+}
+
+.contacto-card{
+  display:block;
+  padding:36px 28px;
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:20px;
+  text-decoration:none;
+  transition:all 0.4s cubic-bezier(0.23,1,0.32,1);
+  position:relative;
+  overflow:hidden;
+  cursor:pointer;
+}
+.contacto-card::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:2px;
+  background:var(--grad-1);
+  opacity:0;transition:opacity 0.4s;
+}
+.contacto-card:hover{
+  transform:translateY(-8px);
+  border-color:rgba(0,229,255,0.4);
+  box-shadow:0 30px 60px rgba(0,0,0,0.5);
+}
+.contacto-card:hover::before{opacity:1;}
+
+.contacto-icon{
+  font-size:2.4rem;
+  margin-bottom:18px;
+  display:block;
+}
+.contacto-card h4{
+  font-family:'Space Grotesk',sans-serif;
+  font-size:1.2rem;
+  font-weight:600;
+  margin-bottom:10px;
+  color:var(--text);
+}
+.contacto-card p{
+  color:var(--text-dim);
+  font-size:0.95rem;
+  margin-bottom:8px;
+  line-height:1.5;
+}
+.contacto-card small{
+  color:var(--text-dim);
+  font-size:0.82rem;
+  line-height:1.5;
+  display:block;
+}
+
+.contacto-card-whatsapp:hover{
+  border-color:#25D366;
+  box-shadow:0 30px 60px rgba(37,211,102,0.2),0 0 0 1px rgba(37,211,102,0.4);
+}
+.contacto-card-whatsapp:hover::before{
+  background:linear-gradient(90deg,#25D366,#00e5ff);
+}
+
+.contacto-card-email:hover{
+  border-color:var(--cyan);
+  box-shadow:0 30px 60px rgba(0,229,255,0.2),0 0 0 1px rgba(0,229,255,0.4);
+}
+
+.contacto-card-donar{
+  cursor:default;
+  border-color:rgba(255,184,0,0.3);
+  background:linear-gradient(135deg,rgba(255,184,0,0.04),rgba(201,135,58,0.02));
+}
+.contacto-card-donar:hover{
+  transform:translateY(-8px);
+  border-color:rgba(255,184,0,0.6);
+  box-shadow:0 30px 60px rgba(255,184,0,0.15);
+}
+.contacto-card-donar:hover::before{
+  background:linear-gradient(90deg,#ffb800,#c9873a);
+}
+
+.alias-destacado{
+  font-size:1.1rem !important;
+  font-weight:700;
+  color:var(--amber) !important;
+  letter-spacing:0.05em;
+  padding:8px 12px;
+  background:rgba(255,184,0,0.08);
+  border-radius:8px;
+  display:inline-block;
+  margin-bottom:12px;
+  border:1px dashed rgba(255,184,0,0.4);
+  user-select:all;
+  font-family:'JetBrains Mono',monospace;
+}
+
+/* CTA FINAL */
+.cta-final{
+  text-align:center;
+  background:linear-gradient(135deg,rgba(0,229,255,0.08),rgba(168,85,247,0.08),rgba(201,135,58,0.05));
+  border:1px solid var(--border);
+  border-radius:32px;
+  padding:100px 5%;
+  max-width:1200px;margin:0 auto;
+  position:relative;overflow:hidden;
+}
+.cta-final::before{
+  content:'';position:absolute;top:-50%;left:-50%;
+  width:200%;height:200%;
+  background:radial-gradient(circle,rgba(0,229,255,0.15),transparent 50%);
+  animation:glowMove 15s ease-in-out infinite alternate;
+}
+@keyframes glowMove{
+  0%{transform:translate(0,0) scale(1);}
+  100%{transform:translate(-10%,-10%) scale(1.2);}
+}
+.cta-final h2{position:relative;margin-left:auto;margin-right:auto;text-align:center;}
+.cta-final p{position:relative;color:var(--text-dim);margin-bottom:40px;font-size:1.1rem;}
+.cta-final .btn{position:relative;}
+
+/* FOOTER */
+footer{
+  padding:80px 5% 60px;
+  border-top:1px solid var(--border);
+  background:rgba(3,4,10,0.9);
+}
+.footer-grid{
+  display:grid;grid-template-columns:2fr 1fr 1fr 1fr;
+  gap:48px;max-width:1200px;margin:0 auto 48px;
+}
+.footer-col h5{
+  font-family:'Space Grotesk',sans-serif;
+  font-size:0.85rem;text-transform:uppercase;
+  letter-spacing:0.12em;color:var(--text);
+  margin-bottom:20px;
+}
+.footer-col a{
+  display:block;color:var(--text-dim);
+  text-decoration:none;font-size:0.9rem;
+  margin-bottom:12px;transition:color 0.2s,transform 0.2s;
+}
+.footer-col a:hover{color:var(--cyan);transform:translateX(4px);}
+.footer-bottom{
+  max-width:1200px;margin:0 auto;
+  padding-top:32px;border-top:1px solid var(--border);
+  display:flex;justify-content:space-between;
+  align-items:center;flex-wrap:wrap;gap:20px;
+  font-size:0.85rem;color:var(--text-dim);
+}
+.footer-quote{
+  font-family:'JetBrains Mono',monospace;
+  color:var(--cyan);font-size:0.82rem;
+}
+
+/* RESPONSIVE */
+@media(max-width:968px){
+  .hero-grid{grid-template-columns:1fr;gap:40px;}
+  .nodo-container{max-width:380px;}
+}
+@media(max-width:768px){
+  .footer-grid{grid-template-columns:1fr 1fr;gap:32px;}
+  section{padding:40px 5%;}
+  .hero{padding:120px 5% 60px;}
+  .demo-wrap{transform:none;}
+}
+</style>
+</head>
+<body>
+
+<!-- LOADER -->
+<div class="loader" id="loader">
+  <div class="loader-logo">NOST-IA</div>
+</div>
+
+<!-- CURSOR -->
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+
+<!-- CANVAS 3D -->
+<canvas id="bg-canvas"></canvas>
+
+<!-- NAV CON DOCK INTEGRADO -->
+<nav id="nav">
+  <div class="logo">
+    <div class="escudo-sello">
+      <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+        <path d="M50 5 L90 20 L90 55 Q90 85 50 95 Q10 85 10 55 L10 20 Z" 
+              fill="rgba(0,229,255,0.08)" 
+              stroke="#00e5ff" 
+              stroke-width="2"/>
+        <ellipse cx="50" cy="55" rx="18" ry="22" fill="none" stroke="#c9873a" stroke-width="2.5"/>
+        <path d="M50 33 L50 15" stroke="#00e5ff" stroke-width="2.5" stroke-linecap="round"/>
+        <circle cx="50" cy="15" r="2.5" fill="#00e5ff"/>
+        <circle cx="42" cy="50" r="1.5" fill="#00e5ff"/>
+        <circle cx="58" cy="55" r="1.5" fill="#00e5ff"/>
+        <line x1="35" y1="77" x2="65" y2="77" stroke="#c9873a" stroke-width="2" stroke-linecap="round"/>
+      </svg>
+      <svg class="anillo-giratorio" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="50" cy="50" r="48" fill="none" stroke="rgba(0,229,255,0.3)" stroke-width="0.5" stroke-dasharray="3 5"/>
+      </svg>
+    </div>
+    <span>NOST-IA</span>
+  </div>
+
+  <!-- DOCK INTEGRADO AL NAV -->
+  <div class="dock" id="dock">
+    <a href="#filosofia" class="dock-item">
+      <span class="dock-icon">🏛️</span>
+      <span class="dock-label">Filosofía</span>
+    </a>
+    <a href="#funciones" class="dock-item">
+      <span class="dock-icon">⚙️</span>
+      <span class="dock-label">Funciones</span>
+    </a>
+    <a href="#demo" class="dock-item">
+      <span class="dock-icon">🎬</span>
+      <span class="dock-label">Demo</span>
+    </a>
+    <a href="#instalacion" class="dock-item">
+      <span class="dock-icon">⬇️</span>
+      <span class="dock-label">Instalación</span>
+    </a>
+    <a href="#servicios" class="dock-item">
+      <span class="dock-icon">🛠️</span>
+      <span class="dock-label">Servicios</span>
+    </a>
+    <a href="#servicios" class="dock-item">
+      <span class="dock-icon">📞</span>
+      <span class="dock-label">Contacto</span>
+    </a>
+  </div>
+
+  <a href="#instalacion" class="nav-cta">Descargar gratis</a>
+</nav>
+
+<!-- HERO -->
+<header class="hero">
+  <div class="hero-grid">
+    <div class="hero-text">
+      <span class="badge">
+        <span class="badge-dot"></span>
+        Software Libre · GPLv3 · 100% Offline
+      </span>
+
+      <h1 class="titulo-principal" id="tituloPrincipal">La Inteligencia Artificial al servicio de las PYMES y los comercios de barrio.</h1>
+
+      <p class="lead">
+        Sin internet. Sin corporaciones. Sin suscripciones en dólares.
+        NOST-IA corre 100% en la computadora del comerciante, protege sus datos
+        y le devuelve el control de su negocio.
+      </p>
+      <div class="cta-group">
+        <a href="https://github.com/albertosalinas-cyber/nost-ia-soberano/releases" class="btn btn-primary" target="_blank">
+          ⬇ Descargar para Windows
+        </a>
+        <a href="#filosofia" class="btn btn-ghost">Conocer la filosofía</a>
+      </div>
+    </div>
+
+    <div class="nodo-container">
+      <div class="orbita orbita-1"></div>
+      <div class="orbita orbita-2"></div>
+      <div class="orbita orbita-3"></div>
+
+      <video class="nodo-video" autoplay loop muted playsinline preload="auto">
+        <source src="activos/hero-loop.mp4" type="video/mp4">
+        Tu navegador no soporta video HTML5.
+      </video>
+    </div>
+  </div>
+
+  <div class="stats">
+    <div class="stat">
+      <div class="contador-num" data-valor="100" data-sufijo="%">0%</div>
+      <div class="stat-label">Offline</div>
+    </div>
+    <div class="stat">
+      <div class="contador-num" data-valor="0">0</div>
+      <div class="stat-label">Suscripciones</div>
+    </div>
+    <div class="stat">
+      <div class="contador-num" data-valor="4">0</div>
+      <div class="stat-label">GB RAM mínimo</div>
+    </div>
+    <div class="stat">
+      <div class="contador-num texto" data-texto="GPLv3">GPLv3</div>
+      <div class="stat-label">Licencia libre</div>
+    </div>
+    <div class="stat">
+      <div class="contador-num" data-valor="100" data-sufijo="%">0%</div>
+      <div class="stat-label">Soberano</div>
+    </div>
+  </div>
+</header>
+
+<!-- FILOSOFÍA -->
+<section id="filosofia">
+  <span class="section-tag">// 01 — Filosofía</span>
+  <h2>La tecnología más avanzada<br>no debe ser un privilegio.</h2>
+  <p class="section-sub">
+    NOST-IA nace de una convicción: la Inteligencia Artificial debe estar al
+    servicio del pueblo trabajador, no de las corporaciones que cobran en dólares
+    y se apropian de los datos privados.
+  </p>
+
+  <div class="pillars">
+    <div class="pillar">
+      <div class="pillar-icon">🔒</div>
+      <h3>Soberanía Territorial</h3>
+      <p>Toda la información vive en el disco duro del comerciante. Precios, costos, proveedores y márgenes nunca salen de su computadora.</p>
+    </div>
+    <div class="pillar">
+      <div class="pillar-icon">⚡</div>
+      <h3>Cero Dependencia</h3>
+      <p>Funciona sin internet, sin servidores externos y sin cuotas. El software es libre para siempre. Nadie puede suspender tu cuenta.</p>
+    </div>
+    <div class="pillar">
+      <div class="pillar-icon">🤝</div>
+      <h3>IA al Servicio del Pueblo</h3>
+      <p>Ponemos en manos de cooperativas, mutuales y almacenes la misma tecnología que usan las grandes cadenas de supermercados.</p>
+    </div>
+    <div class="pillar">
+      <div class="pillar-icon">🇦🇷</div>
+      <h3>Realidad Argentina</h3>
+      <p>Entiende facturas A/B/C, IVA 21%/10.5%, percepciones, y distingue Harina 000 de 0000 sin confundirse jamás.</p>
+    </div>
+  </div>
+</section>
+
+<!-- FUNCIONES -->
+<section id="funciones">
+  <span class="section-tag">// 02 — Funciones</span>
+  <h2>Todo lo que tu comercio necesita.<br>Sin pagar un peso.</h2>
+  <p class="section-sub">
+    Un sistema integral que combina inteligencia artificial local, visión por
+    computadora y control comercial en tiempo real.
+  </p>
+
+  <div class="features">
+    <div class="feature">
+      <span class="feature-num">01 / VDU 2D</span>
+      <h4>Lectura visual de facturas</h4>
+      <p>Pipeline de comprensión visual (docTR + ONNX 8-bit) que segmenta el layout, aísla la tabla de mercaderías y descarta membretes fiscales. 100% determinista, cero alucinación.</p>
+    </div>
+    <div class="feature">
+      <span class="feature-num">02 / MATRIZ DE VETO</span>
+      <h4>Discriminación inteligente de productos</h4>
+      <p>Algoritmo de 5 etapas que impide fusionar Harina 000 con 0000, o un bulto de 50kg con un paquete de 1kg. Nunca más stock mezclado.</p>
+    </div>
+    <div class="feature">
+      <span class="feature-num">03 / COMPAÑERO IA</span>
+      <h4>Asistente de mostrador territorial</h4>
+      <p>Diálogo natural con voseo argentino. Sugiere combos relámpago, detecta quiebres de stock y calcula márgenes reales usando IA local (Qwen 2.5 Coder 1.5B vía Ollama).</p>
+    </div>
+    <div class="feature">
+      <span class="feature-num">04 / CAPITAL EN GÓNDOLA</span>
+      <h4>Control real de tu inversión</h4>
+      <p>Calcula cuánto capital tenés invertido en mercadería, cuánto ganás por rubro y cuánto te queda después de absorber alquiler, luz, internet y tasas municipales.</p>
+    </div>
+    <div class="feature">
+      <span class="feature-num">05 / BACKUP SOBERANO</span>
+      <h4>Copias con firma criptográfica</h4>
+      <p>Exportación e importación de backups en JSON con hash SHA-256. Guardás todo en un pendrive y sos dueño absoluto de tu información.</p>
+    </div>
+    <div class="feature">
+      <span class="feature-num">06 / MEMORIA ADAPTATIVA</span>
+      <h4>Aprende de cada corrección</h4>
+      <p>Cuando corregís un nombre o asignás un código, NOST-IA guarda la regla en su memoria local (Dexie.js) y reconoce ese producto al instante en la próxima factura.</p>
+    </div>
+  </div>
+</section>
+
+<!-- DEMO CON VIDEO DE YOUTUBE -->
+<section id="demo">
+  <span class="section-tag">// 03 — Demo</span>
+  <h2>Así se ve NOST-IA en acción.</h2>
+  <p class="section-sub">
+    Un vistazo a la interfaz real del sistema, corriendo 100% offline en una
+    computadora de barrio.
+  </p>
+
+  <div class="demo-wrap">
+    <div class="demo-bar">
+      <span class="demo-dot r"></span>
+      <span class="demo-dot y"></span>
+      <span class="demo-dot g"></span>
+      <span class="demo-title">NOST-IA v1.0.1 — Demo oficial</span>
+    </div>
+    <div class="video-container">
+      <iframe 
+        id="videoDemo"
+        src="https://www.youtube-nocookie.com/embed/MGZjfRAD410?rel=0&modestbranding=1&enablejsapi=1&origin=https://nostia.com.ar"
+        title="NOST-IA: La Inteligencia Artificial al servicio de los comercios de barrio"
+        referrerpolicy="strict-origin-when-cross-origin"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+        allowfullscreen>
+      </iframe>
+    </div>
+  </div>
+</section>
+
+<!-- STACK -->
+<section id="stack">
+  <span class="section-tag">// 04 — Stack tecnológico</span>
+  <h2>Construido con tecnología abierta.</h2>
+  <p class="section-sub" style="text-align:center;margin-left:auto;margin-right:auto;">
+    Cada pieza de NOST-IA es software libre, auditable y soberano.
+  </p>
+
+  <div class="stack-grid">
+    <div class="stack-chip"><span class="dot" style="background:#61dafb"></span>React 19</div>
+    <div class="stack-chip"><span class="dot" style="background:#3178c6"></span>TypeScript 5.8</div>
+    <div class="stack-chip"><span class="dot" style="background:#339933"></span>Node.js 22</div>
+    <div class="stack-chip"><span class="dot" style="background:#38bdf8"></span>Tailwind CSS v4</div>
+    <div class="stack-chip"><span class="dot" style="background:#00ff9d"></span>Ollama</div>
+    <div class="stack-chip"><span class="dot" style="background:#a855f7"></span>Qwen 2.5 Coder</div>
+    <div class="stack-chip"><span class="dot" style="background:#ffb800"></span>Dexie.js</div>
+    <div class="stack-chip"><span class="dot" style="background:#ff3b5c"></span>ONNX Runtime</div>
+    <div class="stack-chip"><span class="dot" style="background:#00e5ff"></span>docTR (LW-DETR)</div>
+    <div class="stack-chip"><span class="dot" style="background:#e8ecf5"></span>PDF.js</div>
+    <div class="stack-chip"><span class="dot" style="background:#00b8d4"></span>Tesseract.js</div>
+    <div class="stack-chip"><span class="dot" style="background:#00ff9d"></span>ZXing WASM</div>
+  </div>
+</section>
+
+<!-- INSTALACIÓN -->
+<section id="instalacion">
+  <span class="section-tag">// 05 — Instalación</span>
+  <h2>Instalación en 2 pasos.<br>Sin conocimientos técnicos.</h2>
+  <p class="section-sub">
+    No necesitás instalar Node.js, ni ejecutar comandos, ni nada por el estilo.
+    Todo viene incluido en el paquete.
+  </p>
+
+  <div class="install-steps">
+    <div class="step">
+      <div class="step-num">01</div>
+      <h4>Descargá el paquete</h4>
+      <p>Entrá a la sección Releases de GitHub y descargá el archivo <code style="color:var(--cyan);font-family:'JetBrains Mono',monospace;">NOST-IA-v1.0.1-Windows.zip</code>.</p>
+    </div>
+    <div class="step">
+      <div class="step-num">02</div>
+      <h4>Descomprimí y hacé doble clic</h4>
+      <p>Descomprimí la carpeta y ejecutá <code style="color:var(--cyan);font-family:'JetBrains Mono',monospace;">INICIAR.bat</code>. El navegador se abre solo con NOST-IA funcionando.</p>
+    </div>
+    <div class="step">
+      <div class="step-num">03</div>
+      <h4>Empezá a usarlo</h4>
+      <p>Cargá tu primera factura, revisá tu stock y hablá con tu Compañero IA. Todo funciona sin internet.</p>
+    </div>
+  </div>
+
+  <div style="text-align:center;margin-top:60px;">
+    <a href="https://github.com/albertosalinas-cyber/nost-ia-soberano/releases" class="btn btn-primary" target="_blank">
+      ⬇ Ir a la sección de descargas
+    </a>
+  </div>
+</section>
+
+<!-- SERVICIOS -->
+<section id="servicios">
+  <span class="section-tag">// 06 — Servicios profesionales</span>
+  <h2>El software es libre.<br>El acompañamiento humano es un servicio justo.</h2>
+  <p class="section-sub">
+    NOST-IA es y será siempre gratuito (GPLv3). Pero si querés llevar el proyecto
+    a tu comercio con acompañamiento profesional, estos servicios están disponibles.
+  </p>
+
+  <div class="services">
+    <div class="service">
+      <span class="service-icon">🔧</span>
+      <h4>Instalación y configuración</h4>
+      <p>Instalamos NOST-IA en tu comercio, configuramos tu catálogo, precios y proveedores.</p>
+    </div>
+    <div class="service">
+      <span class="service-icon">📚</span>
+      <h4>Capacitación</h4>
+      <p>Formación para vos y tus empleados: lectura de facturas, control de stock y uso del Compañero IA.</p>
+    </div>
+    <div class="service">
+      <span class="service-icon">🛡️</span>
+      <h4>Auditoría de seguridad</h4>
+      <p>Revisión de tu instalación, backups, cifrado y buenas prácticas de ciberseguridad.</p>
+    </div>
+    <div class="service">
+      <span class="service-icon">🚀</span>
+      <h4>Mejoras a medida</h4>
+      <p>Adaptaciones específicas para tu rubro, integraciones con sistemas existentes y nuevas funcionalidades.</p>
+    </div>
+    <div class="service">
+      <span class="service-icon">📞</span>
+      <h4>Soporte prioritario</h4>
+      <p>Atención directa por WhatsApp y email. Respuesta en menos de 24 horas.</p>
+    </div>
+    <div class="service">
+      <span class="service-icon">🎓</span>
+      <h4>Talleres para cooperativas</h4>
+      <p>Charlas y talleres para mutuales, clubes de barrio y organizaciones libres del pueblo.</p>
+    </div>
+  </div>
+
+  <!-- CTA DE SERVICIOS CON TARJETAS DE CONTACTO -->
+  <div class="cta-servicios">
+    <div class="cta-servicios-content">
+      <span class="cta-servicios-tag">// ¿Hablamos?</span>
+      <h3>¿Querés llevar NOST-IA a tu comercio?</h3>
+      <p>Contame tu caso y te armo una propuesta a medida. Sin compromiso, sin vueltas, sin letra chica.</p>
+      
+      <div class="contacto-grid">
+        <a href="https://wa.me/5491137689803?text=Hola%20Alberto%2C%20quiero%20consultar%20sobre%20NOST-IA%20para%20mi%20comercio" 
+           target="_blank" 
+           class="contacto-card contacto-card-whatsapp">
+          <div class="contacto-icon">💬</div>
+          <h4>WhatsApp</h4>
+          <p>Escribime directo por WhatsApp. Te respondo personalmente.</p>
+          <small>Respuesta en menos de 24 hs</small>
+        </a>
+
+        <a href="mailto:alberto.salinas@bue.edu.ar?subject=Consulta%20sobre%20NOST-IA&body=Hola%20Alberto%2C%20quiero%20consultar%20sobre%20NOST-IA%20para%20mi%20comercio." 
+           class="contacto-card contacto-card-email">
+          <div class="contacto-icon">✉️</div>
+          <h4>Email</h4>
+          <p>Para consultas formales, propuestas o colaboraciones.</p>
+          <small>Te abro el cliente de correo</small>
+        </a>
+
+        <div class="contacto-card contacto-card-donar">
+          <div class="contacto-icon">❤️</div>
+          <h4>Aportá mensualmente</h4>
+          <p>Para que NOST-IA siga siendo independiente, soberano y territorial.</p>
+          <p class="alias-destacado">NOST.IA.SOBERANO</p>
+          <small>Tu aporte sostiene la investigación, el desarrollo y el software libre.</small>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA FINAL -->
+<section id="cta-final">
+  <div class="cta-final">
+    <span class="section-tag" style="display:block;text-align:center;">// El futuro es soberano</span>
+    <h2 style="margin-left:auto;margin-right:auto;text-align:center;">¿Te sumás a la soberanía tecnológica?</h2>
+    <p>Descargá NOST-IA, probalo en tu comercio, compartilo con otros. La tecnología es nuestra si la construimos entre todos.</p>
+    <div style="display:flex;gap:16px;justify-content:center;flex-wrap:wrap;position:relative;">
+      <a href="https://github.com/albertosalinas-cyber/nost-ia-soberano" class="btn btn-primary" target="_blank">
+        ⭐ Ver en GitHub
+      </a>
+      <a href="#servicios" class="btn btn-ghost">Contactar</a>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer id="contacto">
+  <div class="footer-grid">
+    <div class="footer-col">
+      <div class="logo" style="margin-bottom:20px;">
+        <div class="escudo-sello">
+          <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+            <path d="M50 5 L90 20 L90 55 Q90 85 50 95 Q10 85 10 55 L10 20 Z" 
+                  fill="rgba(0,229,255,0.08)" 
+                  stroke="#00e5ff" 
+                  stroke-width="2"/>
+            <ellipse cx="50" cy="55" rx="18" ry="22" fill="none" stroke="#c9873a" stroke-width="2.5"/>
+            <path d="M50 33 L50 15" stroke="#00e5ff" stroke-width="2.5" stroke-linecap="round"/>
+            <circle cx="50" cy="15" r="2.5" fill="#00e5ff"/>
+            <circle cx="42" cy="50" r="1.5" fill="#00e5ff"/>
+            <circle cx="58" cy="55" r="1.5" fill="#00e5ff"/>
+            <line x1="35" y1="77" x2="65" y2="77" stroke="#c9873a" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <span>NOST-IA</span>
+      </div>
+      <p style="color:var(--text-dim);font-size:0.9rem;max-width:340px;">
+        Nodo Operativo Soberano Territorial con Inteligencia Artificial.
+        Concebido en Mataderos, Buenos Aires, Argentina.
+      </p>
+      <p class="footer-quote" style="margin-top:20px;">
+        "Inteligencia Artificial al servicio del Territorio"
+      </p>
+    </div>
+    <div class="footer-col">
+      <h5>Proyecto</h5>
+      <a href="#filosofia">Filosofía</a>
+      <a href="#funciones">Funciones</a>
+      <a href="#demo">Demo</a>
+      <a href="#instalacion">Instalación</a>
+    </div>
+    <div class="footer-col">
+      <h5>Recursos</h5>
+      <a href="https://github.com/albertosalinas-cyber/nost-ia-soberano" target="_blank">GitHub</a>
+      <a href="https://github.com/albertosalinas-cyber/nost-ia-soberano/releases" target="_blank">Descargas</a>
+      <a href="https://github.com/albertosalinas-cyber/nost-ia-soberano/blob/main/PHILOSOPHY.md" target="_blank">Manifiesto</a>
+      <a href="https://github.com/albertosalinas-cyber/nost-ia-soberano/blob/main/MANUAL_DE_USO_PASO_A_PASO.md" target="_blank">Manual de uso</a>
+    </div>
+    <div class="footer-col">
+      <h5>Contacto</h5>
+      <a href="https://wa.me/5491137689803" target="_blank">Escribime por WhatsApp</a>
+      <a href="mailto:alberto.salinas@bue.edu.ar">Enviame un email</a>
+      <a href="#servicios">Alias: NOST.IA.SOBERANO</a>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>© 2026 NOST-IA · Prof. Alberto Salinas Mendieta · GPLv3</span>
+    <span class="footer-quote">Hecho con soberanía en Mataderos, Buenos Aires 🇦🇷</span>
+  </div>
+</footer>
+
+<!-- THREE.JS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<!-- GSAP -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+
+<script>
+// ============ LOADER ============
+window.addEventListener('load', () => {
+  setTimeout(() => {
+    document.getElementById('loader').classList.add('hidden');
+  }, 800);
+});
+
+// ============ CURSOR ============
+const cursor = document.getElementById('cursor');
+const cursorRing = document.getElementById('cursorRing');
+let mouseX = 0, mouseY = 0;
+let ringX = 0, ringY = 0;
+
+document.addEventListener('mousemove', (e) => {
+  mouseX = e.clientX;
+  mouseY = e.clientY;
+  cursor.style.left = mouseX + 'px';
+  cursor.style.top = mouseY + 'px';
+});
+
+function animateRing() {
+  ringX += (mouseX - ringX) * 0.15;
+  ringY += (mouseY - ringY) * 0.15;
+  cursorRing.style.left = ringX + 'px';
+  cursorRing.style.top = ringY + 'px';
+  requestAnimationFrame(animateRing);
+}
+animateRing();
+
+document.querySelectorAll('a, button, .pillar, .feature, .service, .stack-chip, .dock-item, .step, .contacto-card').forEach(el => {
+  el.addEventListener('mouseenter', () => {
+    cursor.classList.add('hover');
+    cursorRing.classList.add('hover');
+  });
+  el.addEventListener('mouseleave', () => {
+    cursor.classList.remove('hover');
+    cursorRing.classList.remove('hover');
+  });
+});
+
+// ============ NAV SCROLL ============
+const nav = document.getElementById('nav');
+window.addEventListener('scroll', () => {
+  if (window.pageYOffset > 50) nav.classList.add('scrolled');
+  else nav.classList.remove('scrolled');
+});
+
+// ============ DOCK ZOOM ============
+const dockItems = document.querySelectorAll('.dock-item');
+dockItems.forEach((item, index) => {
+  item.addEventListener('mouseenter', () => {
+    if (dockItems[index - 1]) dockItems[index - 1].classList.add('vecino-1');
+    if (dockItems[index + 1]) dockItems[index + 1].classList.add('vecino-1');
+  });
+  item.addEventListener('mouseleave', () => {
+    dockItems.forEach(l => {
+      l.classList.remove('vecino-1');
+    });
+  });
+});
+
+// ============ TÍTULO PRINCIPAL CON ONDA LUMINOSA ============
+const tituloPrincipal = document.getElementById('tituloPrincipal');
+const textoOriginal = tituloPrincipal.textContent.trim();
+
+tituloPrincipal.innerHTML = '';
+const palabras = textoOriginal.split(' ');
+
+palabras.forEach((palabra) => {
+  const palabraSpan = document.createElement('span');
+  palabraSpan.className = 'palabra';
+
+  palabra.split('').forEach((char) => {
+    const charSpan = document.createElement('span');
+    charSpan.className = 'char';
+    charSpan.textContent = char;
+    palabraSpan.appendChild(charSpan);
+  });
+
+  tituloPrincipal.appendChild(palabraSpan);
+});
+
+const todosLosChars = tituloPrincipal.querySelectorAll('.char');
+
+todosLosChars.forEach((char, index) => {
+  setTimeout(() => {
+    char.classList.add('visible', 'onda');
+    setTimeout(() => {
+      char.classList.remove('onda');
+    }, 1200);
+  }, 60 * index);
+});
+
+// ============ CONTEO ANIMADO EN STATS ============
+function animarContador(el) {
+  const valor = parseInt(el.getAttribute('data-valor'));
+  const sufijo = el.getAttribute('data-sufijo') || '';
+  const duracion = 1500;
+  const inicio = performance.now();
+
+  function actualizar(ahora) {
+    const transcurrido = ahora - inicio;
+    const progreso = Math.min(transcurrido / duracion, 1);
+    const easing = 1 - Math.pow(1 - progreso, 3);
+    const actual = Math.floor(valor * easing);
+    el.textContent = actual + sufijo;
+    if (progreso < 1) {
+      requestAnimationFrame(actualizar);
+    } else {
+      el.textContent = valor + sufijo;
+    }
+  }
+  requestAnimationFrame(actualizar);
+}
+
+const contadores = document.querySelectorAll('.contador-num[data-valor]');
+const contadorObserver = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      animarContador(entry.target);
+      contadorObserver.unobserve(entry.target);
+    }
+  });
+}, { threshold: 0.5 });
+
+contadores.forEach(c => contadorObserver.observe(c));
+
+// ============ THREE.JS PARTICLES ============
+const canvas = document.getElementById('bg-canvas');
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+camera.position.z = 30;
+
+const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+const particlesGeometry = new THREE.BufferGeometry();
+const particlesCount = 800;
+const posArray = new Float32Array(particlesCount * 3);
+const colorArray = new Float32Array(particlesCount * 3);
+
+const colors = [
+  new THREE.Color(0x00e5ff),
+  new THREE.Color(0xa855f7),
+  new THREE.Color(0xff3b5c),
+  new THREE.Color(0x00ff9d),
+  new THREE.Color(0xc9873a)
+];
+
+for (let i = 0; i < particlesCount * 3; i += 3) {
+  posArray[i] = (Math.random() - 0.5) * 80;
+  posArray[i+1] = (Math.random() - 0.5) * 80;
+  posArray[i+2] = (Math.random() - 0.5) * 80;
+  const color = colors[Math.floor(Math.random() * colors.length)];
+  colorArray[i] = color.r;
+  colorArray[i+1] = color.g;
+  colorArray[i+2] = color.b;
+}
+
+particlesGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
+particlesGeometry.setAttribute('color', new THREE.BufferAttribute(colorArray, 3));
+
+const particlesMaterial = new THREE.PointsMaterial({
+  size: 0.15,
+  vertexColors: true,
+  transparent: true,
+  opacity: 0.8,
+  blending: THREE.AdditiveBlending
+});
+
+const particlesMesh = new THREE.Points(particlesGeometry, particlesMaterial);
+scene.add(particlesMesh);
+
+const lineGeometry = new THREE.BufferGeometry();
+const linePositions = [];
+const lineColors = [];
+
+for (let i = 0; i < 100; i++) {
+  const x1 = (Math.random() - 0.5) * 60;
+  const y1 = (Math.random() - 0.5) * 60;
+  const z1 = (Math.random() - 0.5) * 60;
+  const x2 = x1 + (Math.random() - 0.5) * 15;
+  const y2 = y1 + (Math.random() - 0.5) * 15;
+  const z2 = z1 + (Math.random() - 0.5) * 15;
+  linePositions.push(x1, y1, z1, x2, y2, z2);
+  const color = colors[Math.floor(Math.random() * colors.length)];
+  lineColors.push(color.r, color.g, color.b, color.r, color.g, color.b);
+}
+
+lineGeometry.setAttribute('position', new THREE.Float32BufferAttribute(linePositions, 3));
+lineGeometry.setAttribute('color', new THREE.Float32BufferAttribute(lineColors, 3));
+
+const lineMaterial = new THREE.LineBasicMaterial({
+  vertexColors: true,
+  transparent: true,
+  opacity: 0.15,
+  blending: THREE.AdditiveBlending
+});
+
+const linesMesh = new THREE.LineSegments(lineGeometry, lineMaterial);
+scene.add(linesMesh);
+
+let targetX = 0, targetY = 0;
+document.addEventListener('mousemove', (e) => {
+  targetX = (e.clientX / window.innerWidth - 0.5) * 2;
+  targetY = (e.clientY / window.innerHeight - 0.5) * 2;
+});
+
+const clock = new THREE.Clock();
+function animate() {
+  requestAnimationFrame(animate);
+  const elapsed = clock.getElapsedTime();
+  particlesMesh.rotation.y = elapsed * 0.03;
+  particlesMesh.rotation.x = elapsed * 0.015;
+  linesMesh.rotation.y = elapsed * 0.03;
+  linesMesh.rotation.x = elapsed * 0.015;
+  camera.position.x += (targetX * 3 - camera.position.x) * 0.02;
+  camera.position.y += (-targetY * 3 - camera.position.y) * 0.02;
+  camera.lookAt(scene.position);
+  renderer.render(scene, camera);
+}
+animate();
+
+window.addEventListener('resize', () => {
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+});
+
+// ============ GSAP REVEAL ============
+gsap.registerPlugin(ScrollTrigger);
+
+ScrollTrigger.config({
+  ignoreMobileResize: true,
+  autoRefreshEvents: "visibilitychange,DOMContentLoaded,load"
+});
+
+gsap.from('.nodo-container', {
+  opacity: 0,
+  x: 100,
+  duration: 1.5,
+  ease: 'power3.out',
+  clearProps: 'all'
+});
+
+gsap.from('.pillar', {
+  opacity: 0,
+  y: 80,
+  scale: 0.8,
+  duration: 1.2,
+  stagger: 0.15,
+  ease: 'elastic.out(1, 0.6)',
+  clearProps: 'all',
+  scrollTrigger: {
+    trigger: '.pillars',
+    start: 'top 85%',
+    toggleActions: 'play none none none',
+    once: true
+  }
+});
+
+gsap.from('.feature', {
+  opacity: 0,
+  y: 60,
+  scale: 0.85,
+  duration: 1,
+  stagger: 0.1,
+  ease: 'elastic.out(1, 0.6)',
+  clearProps: 'all',
+  scrollTrigger: {
+    trigger: '.features',
+    start: 'top 85%',
+    toggleActions: 'play none none none',
+    once: true
+  }
+});
+
+gsap.from('.step', {
+  opacity: 0,
+  y: 60,
+  scale: 0.85,
+  duration: 1,
+  stagger: 0.15,
+  ease: 'elastic.out(1, 0.6)',
+  clearProps: 'all',
+  scrollTrigger: {
+    trigger: '.install-steps',
+    start: 'top 85%',
+    toggleActions: 'play none none none',
+    once: true
+  }
+});
+
+gsap.from('.service', {
+  opacity: 0,
+  y: 50,
+  scale: 0.85,
+  duration: 1,
+  stagger: 0.1,
+  ease: 'elastic.out(1, 0.6)',
+  clearProps: 'all',
+  scrollTrigger: {
+    trigger: '.services',
+    start: 'top 85%',
+    toggleActions: 'play none none none',
+    once: true
+  }
+});
+
+gsap.from('.stack-chip', {
+  opacity: 0,
+  scale: 0.7,
+  duration: 0.6,
+  stagger: 0.05,
+  ease: 'back.out(1.7)',
+  clearProps: 'all',
+  scrollTrigger: {
+    trigger: '.stack-grid',
+    start: 'top 90%',
+    toggleActions: 'play none none none',
+    once: true
+  }
+});
+
+gsap.from('.cta-servicios', {
+  opacity: 0,
+  y: 60,
+  duration: 1.2,
+  ease: 'power3.out',
+  clearProps: 'all',
+  scrollTrigger: {
+    trigger: '.cta-servicios',
+    start: 'top 90%',
+    toggleActions: 'play none none none',
+    once: true
+  }
+});
+
+gsap.from('.contacto-card', {
+  opacity: 0,
+  y: 50,
+  scale: 0.9,
+  duration: 1,
+  stagger: 0.15,
+  ease: 'elastic.out(1, 0.6)',
+  clearProps: 'all',
+  scrollTrigger: {
+    trigger: '.contacto-grid',
+    start: 'top 85%',
+    toggleActions: 'play none none none',
+    once: true
+  }
+});
+
+gsap.from('#cta-final', {
+  opacity: 0,
+  y: 60,
+  duration: 1.2,
+  ease: 'power3.out',
+  clearProps: 'all',
+  scrollTrigger: {
+    trigger: '#cta-final',
+    start: 'top 98%',
+    toggleActions: 'play none none none',
+    once: true
+  }
+});
+
+window.addEventListener('load', () => {
+  setTimeout(() => ScrollTrigger.refresh(), 200);
+  setTimeout(() => ScrollTrigger.refresh(), 800);
+  setTimeout(() => ScrollTrigger.refresh(), 1500);
+});
+
+let resizeTimer;
+window.addEventListener('resize', () => {
+  clearTimeout(resizeTimer);
+  resizeTimer = setTimeout(() => {
+    ScrollTrigger.refresh();
+  }, 250);
+});
+
+// ============ MOUSE GLOW EN TARJETAS ============
+document.querySelectorAll('.pillar, .feature, .step, .service').forEach(card => {
+  card.addEventListener('mousemove', (e) => {
+    const rect = card.getBoundingClientRect();
+    const x = ((e.clientX - rect.left) / rect.width) * 100;
+    const y = ((e.clientY - rect.top) / rect.height) * 100;
+    card.style.setProperty('--mouse-x', x + '%');
+    card.style.setProperty('--mouse-y', y + '%');
+  });
+});
+
+// ============ SMOOTH SCROLL ============
+document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+  anchor.addEventListener('click', function(e) {
+    e.preventDefault();
+    const target = document.querySelector(this.getAttribute('href'));
+    if (target) {
+      target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  });
+});
+</script>
+
+</body>
+</html>

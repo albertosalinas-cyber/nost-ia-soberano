@@ -1,4 +1,5 @@
 [English/Español](./README.md) | [中文](./README-zh.md)
+[![Sitio web](https://img.shields.io/badge/Sitio_Web-nostia.com.ar-00e5ff?style=for-the-badge)](https://nostia.com.ar)
 # NOST-IA: Nodo Operativo Soberano Territorial con Inteligencia Artificial
 
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
@@ -17,6 +18,22 @@
 > **Software Libre (GPLv3), Soberano y 100% Offline para Almacenes de Barrio, Comercios Populares, Cooperativas, Clubes de Barrio y Organizaciones Libres del Pueblo.**  
 > *Concebido y desarrollado por el **Profesor en Bibliotecología e Informática ALBERTO SALINAS MENDIETA**.*  
 > *Lema: Inteligencia Artificial al servicio del Territorio • Mataderos, Buenos Aires, Argentina*
+
+---
+
+## 🌐 Sitio web oficial
+
+**👉 [https://nostia.com.ar](https://nostia.com.ar)**
+
+Ahí podés ver el video demo, conocer las funciones y contactarme directamente.
+
+---
+
+## 🎬 Demo
+
+[![NOST-IA Demo](https://img.youtube.com/vi/MGZjfRAD410/maxresdefault.jpg)](https://www.youtube.com/watch?v=MGZjfRAD410)
+
+Mirá el video completo: [youtube.com/watch?v=MGZjfRAD410](https://www.youtube.com/watch?v=MGZjfRAD410)
 
 ---
 

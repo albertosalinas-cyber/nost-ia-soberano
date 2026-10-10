@@ -15,6 +15,9 @@
 > *Concebido y desarrollado por el **Profesor en Bibliotecología e Informática ALBERTO SALINAS MENDIETA**.*  
 > *Lema: Inteligencia Artificial al servicio del Territorio • Mataderos, Buenos Aires, Argentina*
 
+![Demo de NOST-IA](https://github.com/albertosalinas-cyber/nost-ia-soberano/assets/7d34534f-8bfa-4cab-8974-e92f71473d4)
+
+<img width="800" height="450" alt="Demo NOST-IA" src="https://github.com/user-attachments/assets/7d34534f-8bfa-4cab-8974-e92f71473d4" />
 ---
 
 ## 🌐 Sitio web oficial

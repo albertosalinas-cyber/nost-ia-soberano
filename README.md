@@ -27,6 +27,9 @@
 Ahí podés ver el video demo, conocer las funciones y contactarme directamente.
 
 ---
+### Demo visual del Compañero IA
+
+![Demo del Compañero IA](https://github.com/albertosalinas-cyber/nostia-web/raw/main/activos/demo.gif)
 
 ## 🎬 Demo
 
